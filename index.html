@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="main.css">
 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400|Roboto:100,300,400" rel="stylesheet">
 </head>
   <body>
     <div class="hero-image">
@@ -31,12 +32,14 @@
     </div>     
   <br></br>
   <br></br>
-  <div class="overview-banner">
+  <div class="overview-banner" style="margin-top: 0">
     <div class="banner-text">
       <h2 align="center">Overview</h2>
     </div>
   </div>
   <div class="content">
+
+    <h3 align="center">Goal</h3>
     <p>Our goal for the final project is to have Baxter identify cups, one empty the other filled with something, pick up the full cup, and pour its contents into the other cup. The goal is to accomplish this without the use of AR tags or LiDAR - identification will be completely vision-based. 
     </p>
     
@@ -68,14 +71,15 @@
     <p>Our design was to first calibrate on the height plane of the cup lid using known positions by moving a gripper holding an object around, tracking the spatial position of the gripper and the pixel coordinate of the center of the object. We can obtain the spatial position by using tf and the pixel coordinate using an object detection algorithm that will be explained in the implementation section. Using the spatial-pixel pairs we would calculate a homography matrix to get corresponding pixel to spatial mappings for objects in the plane. Using the same object detection algorithm and our new homography matrix we would then get the position of our cup to pick up and pour into another one (procedure detailed in implementation section). </p>
 
     <h3 align="center">Design Choices Made</h3>
+
     <h4 align="center">Homography</h4>
     <p>We had to figure out a way to map the 2D coordinates from a camera feed to the 3D coordinates of Baxter’s arm positions. We were debating between using AR tags on the table or cups to find their locations and our current method, but we chose to have Baxter move around an object as described above. This method is more challenging and more computationally heavy than using AR tags, but we find it to be more robust for our needs. With AR tags, we would have to make sure that they are always in view, which would not only restrict our movements but also not allow us to move on with our project since we would not longer be able to accurately detect the cup or table. With our current method, we spend a lot of time calibrating since we need to run the image detection algorithm on each image, but once that’s done, we don’t have to worry about blocking any AR tags or recalibrating throughout the whole process.</p>
-
+<!-- 
     <h4 align="center">Picking up cups</h4>
-    <p>We decided to pick up the cup from the top with the arm pointing down and move it closer to the edge of the table before picking it up from the side with the arm horizontal which is the ideal position to pour. We do this because the arm is pretty wide and might hit the table if it goes to pick up a cup that’s farther away on the table horizontally. This way takes longer since it is a roundabout way to move one cup to the other, but it is safer.</p>
+    <p>We decided to pick up the cup from the top with the arm pointing down and move it closer to the edge of the table before picking it up from the side with the arm horizontal which is the ideal position to pour. We do this because the arm is pretty wide and might hit the table if it goes to pick up a cup that’s farther away on the table horizontally. This way takes longer since it is a roundabout way to move one cup to the other, but it is safer.</p> -->
 
     <h4 align="center">Pouring</h4>
-    <p>Pouring: We chose to pour with the arm horizontal along the x-axis (pointing straight away from the body) since this way we can simply rotate the end-effector joint to pour. </p>
+    <p>We originally chose to pour with the arm horizontal along the x-axis (pointing straight away from the body) since this way we can simply rotate the end-effector joint to pour. However, we found that sometimes Baxter would pick up the cup in a way that doesn't allow the wrist joint to rotate any more in the direction we need, making it impossible to pour with the current constraints since no motion plans would be found. We ultimately decided to start off pouring as described above, but then as Baxter continues to pour, the arm would also move up to allow for a larger range of motion, which made pouring much more robust.</p>
 
     <h3 align="center">How Our Design Choices Affected Meeting Our Design Criteria</h3>
     <p>The choice of procedure for homography calibration meant running computationally intensive and unreliable processing for many images. This is not an efficient process, also if the position of the camera changes, the homography has to be recalibrated. 
