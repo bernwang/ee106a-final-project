@@ -115,9 +115,19 @@
       <li>We traverse the edge of the top of the mask to get the top half of the cup lip</li>
       <li>We then use Canny edge detector to find the bottom half ot the lip</li>
       <li>We combine the edges found from the mask and the edge detector and fit an ellipse using linear least squares regression, then store the center of the ellipse. </li>
-      <li>We computed the homography matrix using pixel-spatial coordinates pairs. < Insert image of matrix >. We formulate the appropriate linear system to solve and use least squares to find the optimal homography matrix. </li>
+      <li>We computed the homography matrix using pixel-spatial coordinates pairs. We formulate the following linear system to solve and use least squares to find the optimal homography matrix:
+        <div class="row one">
+          <div class="col-lg-12">
+            <img src="images/homography_matrix.png"  style="max-width: 60%;"/>
+            <p>Linear system to solve for homography matrix</p>
+          </div>
+        </div>
+      </li>
     </ol>
+    <br></br>
 
+    <h4 align="center">Making Baxter Pour</h4>
+    <p>To make Baxter pour, we modified the path_planner.py from lab 7 to get Baxter to pour to in addition to plan for an end position and orientation, plan for joint angles. We did this so that when pouring, we could have Baxter only turn his wrist, because with end and orientation planning, sometimes small orientation changes to the end-effector, moving the whole arm could have Baxter make large sweeping motions. </p>
 
     
 
