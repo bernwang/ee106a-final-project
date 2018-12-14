@@ -19,12 +19,19 @@ h2 {
 	color: rgba(255, 255, 255);
 }
 h3 {
-	margin-top: 15%;
-	margin-bottom: 5%;
+	margin-top: 10%;
+	margin-bottom: 3%;
 }
 
 h4 {
 	font-family: Lato;
+	font-weight: 300;
+	margin-bottom: 2%;
+}
+p {
+	margin-top: 2%;
+	margin-bottom: 2%;
+
 }
 .row p {
 	text-align: center;
@@ -84,6 +91,7 @@ img {
     height: 200px;
     max-width: 100%;
     align-items: right;
+    margin-top: 10%;
 }
 
 .overview-banner-2 {
