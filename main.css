@@ -157,7 +157,7 @@ img {
 
 
 .overview-banner {
-	background-image: url("images/baxter.jpg");
+	background-image: url("images/baxter.JPG");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -166,28 +166,6 @@ img {
     max-width: 100%;
     align-items: right;
     margin-top: 10%;
-}
-
-.overview-banner-2 {
-	background-image: url("images/output/super_trees_vertical_seams_removed.jpg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    height: 200px;
-    max-width: 100%;
-    align-items: right;
-}
-
-.overview-banner-3 {
-	background-image: url("images/thats_all_folks.png");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    height: 200px;
-    max-width: 100%;
-    align-items: right;
 }
 
 .overview-banner-implementation {
