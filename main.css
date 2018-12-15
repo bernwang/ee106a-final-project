@@ -9,6 +9,11 @@ body {
 	margin-left: 18%;
 	margin-right: 18%;
 }
+
+iframe {
+	/*margin-right: 50px;*/
+}
+
 h1 {
 	font-size: 500%;
 }

@@ -74,9 +74,6 @@
 
     <h4 align="center">Homography</h4>
     <p>We had to figure out a way to map the 2D coordinates from a camera feed to the 3D coordinates of Baxter’s arm positions. We were debating between using AR tags on the table or cups to find their locations and our current method, but we chose to have Baxter move around an object as described above. This method is more challenging and more computationally heavy than using AR tags, but we find it to be more robust for our needs. With AR tags, we would have to make sure that they are always in view, which would not only restrict our movements but also not allow us to move on with our project since we would not longer be able to accurately detect the cup or table. With our current method, we spend a lot of time calibrating since we need to run the image detection algorithm on each image, but once that’s done, we don’t have to worry about blocking any AR tags or recalibrating throughout the whole process.</p>
-<!-- 
-    <h4 align="center">Picking up cups</h4>
-    <p>We decided to pick up the cup from the top with the arm pointing down and move it closer to the edge of the table before picking it up from the side with the arm horizontal which is the ideal position to pour. We do this because the arm is pretty wide and might hit the table if it goes to pick up a cup that’s farther away on the table horizontally. This way takes longer since it is a roundabout way to move one cup to the other, but it is safer.</p> -->
 
     <h4 align="center">Pouring</h4>
     <p>We originally chose to pour with the arm horizontal along the x-axis (pointing straight away from the body) since this way we can simply rotate the end-effector joint to pour. However, we found that sometimes Baxter would pick up the cup in a way that doesn't allow the wrist joint to rotate any more in the direction we need, making it impossible to pour with the current constraints since no motion plans would be found. We ultimately decided to start off pouring as described above, but then as Baxter continues to pour, the arm would also move up to allow for a larger range of motion, which made pouring much more robust.</p>
@@ -96,16 +93,16 @@
 
   <div class="content">
     <h3 align="center">Hardware</h3>
-    <p>We used a Baxter, specifically its right arm for gripping and its left arm for its camera. < insert pics > </p>
+    <p>We used a Baxter, specifically its right arm for gripping and its left arm for its camera. </p>
 
     <div class="row one">
       <div class="col-lg-6">
-        <img src="images/santorini.jpg" />
-        <p>Left arm</p>
+        <img src="images/left_arm.jpg" />
+        <p>Left arm, with camera </p>
       </div>
       <div class="col-lg-6">
-        <img src="images/output/santorini_mask.jpg" />
-        <p>Right Arm</p>
+        <img src="images/right_arm.jpg" />
+        <p>Right Arm, with gripper </p>
       </div>
     </div>
     <br></br>
@@ -113,7 +110,7 @@
 
     <h3 align="center">Software</h3>
     <h4 align="center">Image Detection Algorithm</h4>
-    <p>We wrote a detection algorithm for cups using Mask R-CNN and Canny edge detector and is as follows: </p>
+    <p>We wrote a detection algorithm for cups using <a href="https://github.com/matterport/Mask_RCNN">Mask R-CNN</a> and Canny edge detector and is as follows: </p>
     <ol>
       <li>We first find the mask of the cup using a pre-trained model of Mask R-CNN.</li>
       <li>We traverse the edge of the top of the mask to get the top half of the cup lip</li>
@@ -134,277 +131,100 @@
     <p>To make Baxter pour, we modified the path_planner.py from lab 7 to get Baxter to pour to in addition to plan for an end position and orientation, plan for joint angles. We did this so that when pouring, we could have Baxter only turn his wrist, because with end and orientation planning, sometimes small orientation changes to the end-effector, moving the whole arm could have Baxter make large sweeping motions. </p>
 
     
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/output/santorini_miniaturized.jpg" />
-        <p>Santorini, miniaturized</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/santorini_miniaturized_color_adjusted.jpg" />
-        <p>Santorini, miniaturized & saturation-boosted</p>
-      </div>
-    </div>
-    <br></br>
+    <h3 align="center">The Complete System</h3>
+    <h4 align="center">Calibration</h4>
+    <p>We first make Baxter hold a ball/cup for calibration and move it around in a 2D grid near the table height. We used tf_echo to record the spatial position of the gripper and then use our object detection algorithm to detect cup/ball. Since we are using the camera on Baxter’s left arm and is susceptible to distortion and overexposure, we calibrate the camera so produce adequate images. We then use the pixel-spatial coordinate mappings to compute a homography matrix, which we will use to map pixel coordinates to spatial coordinates. </p>
     <br></br>
 
-    <h3 align="center">More Results</h3>
-    <p>THe following images are more results of creating fake miniatures. The left images are the source images, and the right are the fake miniatures, where they are the blurred using dilated masks and then saturation-adjusted to increase the illusion of miniatures. </p>
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/berkeley_small.jpg" />
-        <p>Berkeley, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/berkeley_small_miniaturized_color_adjusted.jpg" />
-        <p>Berkeley, miniaturized & saturation-boosted</p>
-      </div>
-    </div>
+    <h4 align="center">Vision</h4>
+    <p>We use the camera Baxter’s left arm, in the same position as it was during the calibration phase, to take an image of the table with the two cups. Using our object detection algorithm, we fit appropriate ellipses to the lips of the cups and fit their centers. Then with our homography matrix, we map the image coordinates of the centers to their respective spatial coordinates and save them onto a file. </p>
     <br></br>
 
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/safeco.jpg" />
-        <p>Safeco Field, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/safeco_miniaturized_color_adjusted.jpg" />
-        <p>Berkeley Field, miniaturized & saturation-boosted</p>
-      </div>
-    </div>
-    <br></br>
+    <h4 align="center">Pouring</h4>
+    <p>The spatial coordinates of the centers of the cups from the vision phase are passed onto the pouring module, where we load the start position of our pouring action with the pouring cup and the goal position with the receiving cup. We then run our pouring action script, which will use moveit_commander to plan the path of picking up the pouring cup, moving it near the receiving cup into an orientation where it is possible to pour, pour the contents of the pouring cup into the receiving cup, and place then pouring cup back onto the table, all while holding the pouring cup in the vertical orientation so that it will not spill before getting to the pouring action. </p>
 
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/sproul.jpg" />
-        <p>Sproul Hall, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/sproul_miniaturized_color_adjusted.jpg" />
-        <p>Sproul Hall, miniaturized & saturation-boosted</p>
-      </div>
-    </div>
-    <br></br>
-    <br></br>
+ </div>
 
-    <h3 align="center">Summary</h3>
-    <p>This has been a fun project. I think this is very relevant with shallow DOF being the current trend and computional photography being integrated into every smartphone camera. It is amazing how DOF and percieved quality of a photo can be changed by a Python/Matlab script, altough the quality can never be as good as DOF from a lens due to imperfections of drawing masks. I think with edge detection and/or image segmentation algorithms, we can improve drawing masks for subjects we want to focus on. 
-    </p>
-    <br></br>
-    <br></br>
-  </div>
 
-  <div class="overview-banner-2">
+  <div class="overview-banner">
     <div class="banner-text">
-      <h2 align="center">Part II: Seam Carving</h2>
-      <h3 align="center">Overview</h3>
+      <h2 align="center">Results</h2>
     </div>
   </div>
+
   <div class="content">
-    <p>In this project, we implement seam carving, a content-aware image resizing technique. A seam is a connected path from one side of the image to the other that chooses exactly one pixel from each column (or row). We remove seams until we end up with an image of our desired size. The resulting image should be a cropped image where we remove "unimportant" details. 
-    </p>
+    <p>We were able to compute the right spatial coordinates from images if the cups were inside the area bounded by our calibration points. Given the correct spatial coordinates of the cups, Baxter is successfully able to pour from one cup to another. 
+    <br></br>
+
+    Since calibration is time-consuming, we precompute our homography matrix, so we can only compute the spatial coordinates of the cups if we keep the pouring environment the same as the calibration environment (we have to keep Baxter’s left arm in the same pose at all times and the table height must be the same). If we comply to these constraints, then Baxter will pour consistently. </p>
 
 
-    <h3 align="center">Algorithm</h3>
+    <h3 align="center">Video Demo</h3>
+    <p> Here is a video demo of Baxter pouring: </p>
 
-    <p>First, we compute an energy map, which ranks pixels by "importance". For this project we use x and y gradient to compute an energy map. </p>
-
-    <div class="row">
+    <div class="row one">
       <div class="col-lg-12">
-        <img src="images/gradient.png" style="max-width:100%;"/>
-        <p>Gradient energy function</p>
-        <br></br>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/Dxq5RUbs_b0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
 
-    <p>Next we find a path of minimal total energy. We compute the minimal total energy using dynamic programming - we first traverse the image from the second-to-last row to the first row computing the minimal total energy up to each pixel while also keeping track of its neighbor of minimal total energy below: </p> 
+    <p> On the screen is an image taken from Baxter's left arm with the lips of the cup found from our detection algorithm outlined. Here is a closer look at it: </p>
 
-    <div class="row">
+    <div class="row one">
       <div class="col-lg-12">
-        <img src="images/dp.png" style="max-width:100%;"/>
-        <p>Cumulative energy equation</p>
-        <br></br>
-      </div>
-    </div>
-    
-    <p>Then we backtrack starting from the pixel with the smallest total energy in the first row all the way to the last row to obtain our seam to remove. </p>
-    <br></br>
-    <br></br>
-
-    <h3 align="center">Results</h3>
-    <p>Te following images are more results of seam carving. The left images are the source images, and the right are the resized images. </p>
-    <br></br>
-
-    <h4 align="center">Vertical Seam Removal</h4>
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/skytree.jpg" />
-        <p>Sky Tree, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/skytree_vertical_seams_removed.jpg" />
-        <p>Sky Tree, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/hawaii.jpg" />
-        <p>Hawaii, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/hawaii_vertical_seams_removed.jpg" />
-        <p>Hawaii, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/super_trees.jpg" />
-        <p>Supertrees, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/super_trees_vertical_seams_removed.jpg" />
-        <p>Supertrees, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-    <br></br>
-
-    <h4 align="center">Horizontal Seam Removal</h4>
-    <p>We can rotate the image to remove horizontal seams</p>
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/diglett.jpg" />
-        <p>Piling, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/diglett_horizontal_seams_removed.jpg" />
-        <p>Piling, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/hiroshima.jpg" />
-        <p>Hiroshima, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/hiroshima_horizontal_seams_removed.jpg" />
-        <p>Hiroshima, with horizontal seams removed</p>
-      </div>
-    </div>
-    <br></br>
-    <br></br>
-
-    <h4 align="center">Failures</h4>
-    <p>The choice of energy map and image to resize influence the quality of seam carving. Here, we used the gradient energy map on this image of a bullet train. Since the surface of the bullet train is smooth and curvy, some seams carve into it. </p>
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/shinkansen.jpg" />
-        <p>Shinkansen, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/failures/shinkansen_vertical_seams_removed.jpg" />
-        <p>Shinkansen, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-
-    <p>Here it's easy to see where the seams were removed by the obscured braces. 
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/golden_gate.jpg" />
-        <p>Golden Gate Bridge, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/failures/golden_gate_vertical_seams_removed.jpg" />
-        <p>Golden Gate Bridge, with vertical seams removed</p>
-      </div>
-    </div>
-    <br></br>
-
-    <h3 align="center">Bells & Whistles</h3>
-    <br></br>
-    <h4 align="center">Seam Insertion</h4>
-    <p>I implemented seam insertion (described in <a href="https://inst.eecs.berkeley.edu/~cs194-26/fa18/hw/proj4-seamcarving/imret.pdf">paper</a> by Shai Avidan and Ariel Shamir). The algorithm runs as follow: first find k seams found by seam carving. After collecting all the seams, we then add new seams next to the seams found in reverse order to the original origin, where the new artificial seams is computed by taking the average of seams to the left and right of the old one. </p>
-    
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/skytree.jpg" />
-        <p>Sky Tree, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/skytree_vertical_seams_inserted.jpg" />
-        <p>Sky Tree, with vertical seams inserted</p>
-      </div>
-    </div>
-    <br></br>
-
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/super_trees_cropped.jpg" />
-        <p>Supertrees, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/super_trees_cropped_horizontal_seams_inserted.jpg" />
-        <p>Supertrees, with vertical seams inserted</p>
-      </div>
-    </div>
-    <br></br>
-    <br></br>
-
-    <h4 align="center">Object Removal</h4>
-    <p>I also implemented object removal using seam carving and seam insertion. I first make a mask for the object I want to delete. I set the values in the mask such that the masking region for the object is negative and the rest of the mask to be zero. Then for seam carving I multiply the mask with the energy map, keeping the rest of the algorithm the same. Then I inserted vertical seams to resize the image back to the original size. </p>
-    
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/hawaii.jpg" />
-        <p>Hawaii, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/hawaii_object_removed.jpg" />
-        <p>Hawaii, with tree removed</p>
+        <img src="images/cups_with_edges.jpg"/>
       </div>
     </div>
 
-    <div class="row one">
-      <div class="col-lg-6">
-        <img src="images/skytree.jpg" />
-        <p>Sky Tree, original</p>
-      </div>
-      <div class="col-lg-6">
-        <img src="images/output/skytree_small_object_removed_vertical_seams_inserted.jpg" />
-        <p>Sky Tree, with Sky Tree removed and vertical seams inserted</p>
-      </div>
-    </div>
-    <br></br>
-
-    
-    <br></br>
-    <br></br>
-
-    <br></br>
-
-
-
-    <h3 align="center">Summary</h3>
-    <p>Seam carving is a simple, yet functional approach to image resizing. Using the right energy function, it can work beautifully. The use of dynamic programming is elegant, although it can be computationally expensive if you want to remove many seams on large images.  
-    </p>
-    <br></br>
-    <br></br>
   </div>
 
+  <div class="overview-banner">
+    <div class="banner-text">
+      <h2 align="center">Conclusion</h2>
+    </div>
+  </div>
+
+  <div class="content">
+    <p>
+      Our finished solution felt pretty short to our goals. The two main shortcomings were being unable to identify the cup anywhere in 3D space, the second being unable to distinguish between an unfilled and filled cup. 
+      <br></br>
+      A hack that our solution has is that instead of using anything really complicated to do pouring, we simply have the pouring cup approach a position relative to the filling cup, the relation being fixed, and then executing a slow, end effector rotation to empty the contents into the filled cup. If we had extra time some things we would do better is instead of using single camera detection, maybe work on some multi camera detection, which would hopefully be more robust in detecting object position in 3D space. 
+      <br></br>
+      We had played around with determining which cup is full by using the effort values from the joint_states topic, but we could not find enough evidence that effort and weight were correlated, since we could not have Baxter hold the full cup and empty cup with the same pose. Also, the difference in weight between the full cup and empty cup were not so significant that if we were to use effort values, we can be confident whether a cup is full. Vision-based approaches were out of scope since they must detect any kind of object in the full cup, including clear objects. Therefore, we relaxed the problem by having the full cup be to only the right of the empty cup. 
+      The best improvement we could think of was a vision-based solution, but we decided was out of scope. 
+      <br></br>
+      The calibration process and object detection were time-consuming, mostly because we were not able to utilize the instructional computers’ GPUs for Tensorflow. We had requested installation for tensorflow-gpu, but we did not hear anything back. To speed up the process, we transferred our captured images onto our own computers to process them, but even that was not efficient. 
+      <br></br>
+      Additionally, we could not install Tensorflow onto the instructional computers so we had to set up a virtual environment. That meant we could not fully connect our pouring module with our image detection module. A hack we devised was to just save data into files in our image modules and read them in our pouring module, but we would not run both modules simultaneously so we still had to manually run separate scripts, which made testing a pain point. 
+    </p>
+  </div>
+
+  <div class="overview-banner">
+    <div class="banner-text">
+      <h2 align="center">The Team</h2>
+    </div>
+  </div>
+
+  <div class="content">
+
+  </div>
+
+  <div class="overview-banner">
+    <div class="banner-text">
+      <h2 align="center">Additional Materials</h2>
+    </div>
+  </div>
+
+  <div class="content">
+    <p>Please check out our project on Github: <a href="https://github.com/bernwang/ee106a-final-project">https://github.com/bernwang/ee106a-final-project</a></p>
+
+    <p>Youtube Videos</p>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Dxq5RUbs_b0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
 
   <div class="overview-banner-3">
     <div class="banner-text-3">
       <h2 align="center">That's All Folks!</h2>
-      <h6 align="center">This has been a great class. I'd like to thank Professor Efros, Taesung, and Shiry for doing a great job teaching this class.  </h6>
     </div>
   </div>
   </body>
