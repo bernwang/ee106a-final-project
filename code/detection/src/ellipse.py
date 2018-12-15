@@ -45,6 +45,17 @@ def get_edges_from_mask(mask):
   return xs, ys
 
 def fit_ellipse(image, mask):
+  """
+  Given an image and a mask, find the ellipse that best fits the lip of the cup.
+
+  Input:
+    image: cropped image of the object
+    mask: cropped mask of the object
+
+  Output:
+    result: dictionary holding all the information about the fitted ellipse
+  """
+
   xs, ys = get_edges_from_mask(mask)
 
   top_row = np.nonzero(np.apply_along_axis(any, 1, mask))[0][0]
@@ -57,53 +68,13 @@ def fit_ellipse(image, mask):
   canny_edges = canny((image*mask), sigma=2.0,
                 low_threshold=0.55, high_threshold=0.8)
 
-  # plt.imshow(canny_edges)
-  # plt.show()
-
   filtered_mask_edges = filter_mask_edges(mask_edges)
   filtered_canny_edges = filter_canny(mask, canny_edges, thresh=5)
   edges = np.maximum(filtered_mask_edges, filtered_canny_edges)
   ys, xs = list(map(lambda arr: arr.tolist(), np.nonzero(edges)))
-  # plt.imshow(edges)
-  # plt.show()
-  # print(np.max(edges))
-
-
-  # divide_ind = np.nonzero(mask[:,start_col])[0][0]
-
-  # edges[:divide_ind, :] = np.zeros((divide_ind, edges.shape[1]))
-
-  # print(image.shape)
-  # print(top_row, mid_row, bot_row)
-
-  # plt.imshow(image)
-  # plt.show()
-  # plt.imshow(edges)
-  # plt.show()
-  # edges[:divide_ind, :] = np.zeros((divide_ind, edges.shape[1]))
-  # plt.imshow(edges)
-  # plt.show()
-
-  # edges = canny(mask, sigma=2.0,
-  #               low_threshold=0.45, high_threshold=0.8)
-  # edges[:divide_ind, :] = np.zeros((divide_ind, edges.shape[1]))
-
-  ######## obsolete: adds bottom edge from canny 
-  # col_ind = np.nonzero(np.apply_along_axis(any, 0, edges))[0]
-  # start_col = col_ind[0]
-  # end_col = col_ind[-1]
-  # curr_col = start_col
-  # while curr_col <= end_col:
-  #   col = np.nonzero(edges[:,curr_col])[0]
-  #   if len(col) > 0:
-  #     y = col[0]
-  #     xs.append(curr_col)
-  #     ys.append(y)
-  #   curr_col += 1
 
 
   a = fitEllipse(np.array(xs), np.array(ys))
-  # a = fitEllipse(np.nonzero(edges)[0], np.nonzero(edges)[1])
   phi = ellipse_angle_of_rotation(a)
   arc = 2
   R = np.arange(0,arc*np.pi, 0.01)
@@ -121,28 +92,6 @@ def fit_ellipse(image, mask):
   result['xx'] = np.array(xx)
   result['yy'] = np.array(yy)
 
-  # fig = plt.figure()
-  # ax1 = fig.add_subplot(121)
-  # ax2 = fig.add_subplot(122)
-  # ax1.imshow(mask)
-
-
-  # ax2.imshow(edges)
-  # ax2.scatter(result['xs'], result['ys'], c='b')
-  # fig.show()
-  # print(mask.shape)
-  # print(edges.shape)
-
-  # plt.imshow(mask)
-  # plt.show()
-  # plt.imshow(edges)
-  # plt.scatter(result['xs'], result['ys'], c='b')
-  # plt.show()
-  # plt.imshow(image)
-  # plt.scatter(result['xs'], result['ys'], c='b')
-  # plt.scatter(result['xs'], result['ys'], c='b')
-  # plt.scatter(result['center'][0], result['center'][1])
-  # plt.show()
   return result
 
 def fitEllipse(x,y):
@@ -178,73 +127,3 @@ def ellipse_axis_length( a ):
     res2=np.sqrt(up/down2)
     return np.array([res1, res2])
 
-
-# import matplotlib.pyplot as plt
-
-# import skimage
-# import os
-# from skimage import data, color, img_as_ubyte
-# from skimage.feature import canny
-# from skimage.transform import hough_ellipse
-# from skimage.draw import ellipse_perimeter
-
-# # Load picture, convert to grayscale and detect edges
-# # image_rgb = data.coffee()[0:220, 160:420]
-# # image_gray = color.rgb2gray(image_rgb)
-
-# # image_gray = color.rgb2gray(skimage.io.imread("cropped.jpg"))
-
-# # edges = canny(image_gray, sigma=2.0,
-# #               low_threshold=0.55, high_threshold=0.8)
-
-# # plt.imshow(edges)
-# # plt.show()
-
-  
-# image = color.rgb2gray(skimage.io.imread("cropped.jpg"))
-# mask = np.load("cropped_mask.npy")
-# #f.close()
-# #XXXXXXXXXXXXXXXXXXXXXX
-# # plt.imshow(mask)
-# # plt.show()
-# ellipse = fit_ellipse(mask)
-# plt.imshow(image)
-# plt.scatter(ellipse['xs'], ellipse['ys'], c='b')
-# plt.show()
-
-# matrix = np.zeros(mask.shape)
-# matrix[ellipse['ys'], ellipse['xs']] = 1
-
-# plt.imshow(matrix)
-# plt.show()
-
-# # Perform a Hough Transform
-# # The accuracy corresponds to the bin size of a major axis.
-# # The value is chosen in order to get a single high accumulator.
-# # The threshold eliminates low accumulators
-# result = hough_ellipse(matrix, accuracy=20, threshold=250,
-#                        min_size=100, max_size=120)
-# result.sort(order='accumulator')
-
-# # Estimated parameters for the ellipse
-# best = list(result[-1])
-# yc, xc, a, b = [int(round(x)) for x in best[1:5]]
-# orientation = best[5]
-
-# # Draw the ellipse on the original image
-# cy, cx = ellipse_perimeter(yc, xc, a, b, orientation)
-# image_rgb[cy, cx] = (0, 0, 255)
-# # Draw the edge (white) and the resulting ellipse (red)
-# edges = color.gray2rgb(img_as_ubyte(matrix))
-# edges[cy, cx] = (250, 0, 0)
-
-# fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4),
-#                                 sharex=True, sharey=True)
-
-# ax1.set_title('Original picture')
-# ax1.imshow(image_rgb)
-
-# ax2.set_title('Edge (white) and result (red)')
-# ax2.imshow(edges)
-
-# plt.show()

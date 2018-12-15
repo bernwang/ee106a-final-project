@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Path Planning Script for Lab 8
-Author: Valmik Prabhu
+Adapted from the Path Planning Script for Lab 8 by Valmik Prabhu
 """
 
 import os
@@ -14,7 +13,6 @@ from geometry_msgs.msg import PoseStamped
 
 from path_planner import PathPlanner
 from baxter_interface import Limb, CameraController, Gripper
-# from intera_interface import Limb
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import matplotlib.pyplot as plt
@@ -96,6 +94,7 @@ def main():
     grip.open()
 
 
+    # creating the table obstacle so that Baxter doesn't hit it
     table_size = np.array([.5, 1, 10])
     table_pose = PoseStamped()
     table_pose.header.frame_id = "base"
@@ -106,7 +105,9 @@ def main():
     table_pose.pose.position.z = -.112 - thickness / 2
     table_size = np.array([.5, 1, thickness])
 
-    #planner.add_box_obstacle(table_size, "table", table_pose)
+    planner.add_box_obstacle(table_size, "table", table_pose)
+
+
     raw_input("gripper close")
     grip.close()
 
@@ -121,10 +122,6 @@ def main():
 
     camera_subscriber = rospy.Subscriber("cameras/left_hand_camera/image", Image, get_img)
 
-    # Make sure that you've looked at and understand path_planner.py before starting
-
-
-    
 
     Kp = 0.1 * np.array([0.3, 2, 1, 1.5, 2, 2, 3]) # Stolen from 106B Students
     Kd = 0.01 * np.array([2, 1, 2, 0.5, 0.5, 0.5, 0.5]) # Stolen from 106B Students
@@ -136,8 +133,7 @@ def main():
     ## Add the obstacle to the planning scene here
     ##
 
-    # #Create a path constraint for the arm
-    # #UNCOMMENT FOR THE ORIENTATION CONSTRAINTS PART
+    # Create a path constraint for the arm
     orien_const = OrientationConstraint()
     orien_const.link_name = "right_gripper";
     orien_const.header.frame_id = "base";
@@ -150,14 +146,11 @@ def main():
 
     z_rot_pos = getQuaternion(np.array([0,0,1]), np.pi / 2)
 
-
-
     orig = quatMult(z_rot_pos, horizontal)
     orig = getQuaternion(np.array([0,1,0]), np.pi / 2)
 
-    #hardcodeDESE COORDINATE VALUES
     #IN THE VIEW OF THE CAMERA
-    #CORNER1--------->ORNER2
+    #CORNER1--------->CORNER2
     #   |                |
     #   |                |
     #   |                |
@@ -165,7 +158,6 @@ def main():
     width = 0.3
     length = 0.6
     CORNER1 =  np.array([0.799, -0.524, -0.03])
-    #CORNER2 = np.array([0.622 - 0.3, -0.671, -0.254])
     CORNER2 = CORNER1 + np.array([-width, 0, 0])
     CORNER3 = CORNER1 + np.array([0, length, 0])
 
@@ -182,7 +174,7 @@ def main():
             grid_vals.append(grid) 
 
             ret_vals.append(np.array([grid[0], grid[1], OBJECT_HEIGHT]))
-    np.save(POINTS_DIR, np.array(ret_vals))
+
     i = -1
     while not rospy.is_shutdown():
         for g in grid_vals:
@@ -203,14 +195,11 @@ def main():
 
                     #Orientation as a quaternion
 
-
-
                     goal_1.pose.orientation.x = q[1][0]
                     goal_1.pose.orientation.y = q[1][1]
                     goal_1.pose.orientation.z = q[1][2]
                     goal_1.pose.orientation.w = q[0]
                     plan = planner.plan_to_pose(goal_1, [])
-                    #drop object onto the table
 
                     if planner.execute_plan(plan):
                     # raise Exception("Execution failed")
@@ -226,17 +215,15 @@ def main():
                         print("move succesfully to " + str(pos))
                         fname = os.path.join(IMAGE_DIR, "calib_{}.jpg".format(i))
                         skimage.io.imsave(fname, camera_image)
-                        # i += 1
 
 
-
-                except Exception as e:
                     print(e)
                     print("index: ", i)
                 else:
                     break
 
         print(np.array(ret_vals))
+        # save the positions of the gripper so that the homography matrix can be calculated
         np.save(POINTS_DIR, np.array(ret_vals))
         print(np.load(POINTS_DIR))
         break
