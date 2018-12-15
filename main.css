@@ -9,9 +9,18 @@ body {
 	margin-left: 18%;
 	margin-right: 18%;
 }
-
+/*.youtube {
+	position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+}*/
 iframe {
-	/*margin-right: 50px;*/
+	display: block;
+	margin: auto;
+	width: 70%;
+	/*height:;*/
+	min-height: 315px;
 }
 
 h1 {
@@ -87,41 +96,7 @@ img {
 	max-width: 50%;
 }
 
-.overview-banner {
-	background-image: url("images/baxter.JPG");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    height: 200px;
-    max-width: 100%;
-    align-items: right;
-    margin-top: 10%;
-}
-
-.overview-banner-2 {
-	background-image: url("images/output/super_trees_vertical_seams_removed.jpg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    height: 200px;
-    max-width: 100%;
-    align-items: right;
-}
-
-.overview-banner-3 {
-	background-image: url("images/thats_all_folks.png");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: relative;
-    height: 200px;
-    max-width: 100%;
-    align-items: right;
-}
-
-.banner-text-3 {
+.banner-text-dark {
 	text-align: center;
 	position: relative;
 	top: 50%;
@@ -173,3 +148,106 @@ img {
 	/*color: #47494c;*/
 	color: rgba(255, 255, 255);
 }
+
+
+
+.overview-banner {
+	background-image: url("images/baxter.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+    margin-top: 10%;
+}
+
+.overview-banner-2 {
+	background-image: url("images/output/super_trees_vertical_seams_removed.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-3 {
+	background-image: url("images/thats_all_folks.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-implementation {
+	background-image: url("images/masks.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-overview {
+	background-image: url("images/rviz.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-design {
+	background-image: url("images/blueprint.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-team {
+	background-image: url("images/yena_and_baxter_cropped.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-additional-material {
+	background-image: url("images/ee106a_github_screenshot.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
+.overview-banner-conclusion {
+	background-image: url("images/baxter_pouring.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    height: 200px;
+    max-width: 100%;
+    align-items: right;
+}
+
