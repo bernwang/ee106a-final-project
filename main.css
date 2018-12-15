@@ -58,6 +58,10 @@ img {
 	display: block;
 }
 
+.portrait {
+	border-radius: 50%;
+}
+
 .row div {
 	padding: 0rem;
 	margin: 0rem;
