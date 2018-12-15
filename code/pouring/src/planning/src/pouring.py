@@ -88,48 +88,19 @@ def getGripQuat(cupquat):
     cup_to_grip = getQuaternion(np.array([0,1,0]), np.pi / 2)
     #return quatMult(cupquat, cup_to_grip)
     return quatMult(cup_to_grip, cupquat)
+
 def callback(message):
     global thetas
     global joint_states_flag
     global initial_thetas
-    #Print the contents of the message to the console
-    # print(rospy.get_name() + ": I heard %s" % message.data)
     names = message.name
     positions = message.position
-    # print(names)
-    # print(thetas)
     d = {}
     for i in range(len(names)):
         d[names[i]] = positions[i]
     thetas = d
-    # if not joint_states_flag:
-    #     initial_thetas = right_arm.joint_angles()
-    #     joint_states_flag = True
-    # thetas = [pos[8], pos[7], pos[6], pos[3], pos[2], pos[5], pos[4]]
-    # raw_input("move the cup to desired position: ")
 
-    # cup_position, cup_quat = listener.lookupTransform("right_gripper", "base", rospy.Time(0))
-    # print(cup_quat)
-    # cup_position = np.array(cup_position)
-    # orig_quat = [cup_quat[3], np.array(cup_quat[0:3])]
 
-    # step_size = 0.1
-    # cup_quats = [getQuaternion(w, np.pi * step_size * i) for i in range(0, 10)]
-    # grip_quats = [quatMult(orig_quat, c) for c in cup_quats]
-
-    # positions = [cup_position for _ in range(0, 10)]
-    # print(thetas)
-    # if flag:
-    #     iters = 1
-    #     while initial_thetas['right_w2'] > -np.pi:
-    #         print(right_arm.joint_angles())
-    #         initial_thetas['right_w2'] -= .4 *10/ (10 + iters)
-    #         right_arm.set_joint_positions(initial_thetas)
-    #         rospy.sleep(0.1)
-    #         iters += 1
-
-    # if "right_w2" in thetas:
-    #     print(thetas["right_w2"])
 def configureLeftHand():
     planner = PathPlanner("left_arm")
 
@@ -144,25 +115,6 @@ def pour(planner):
     global initial_thetas
     initial_thetas = right_arm.joint_angles()
     print(initial_thetas)
-    
-    # initial_thetas['right_w2'] += -1 #.4 *20/ (20 + iters)
-    # print(initial_thetas['right_w2'])
-    # while not rospy.is_shutdown():
-    #     try:
-    #         while True:
-    #             plan = planner.plan_to_angle(initial_thetas,[])
-    #             if planner.execute_plan(plan):
-    #                 print("yay")
-    #                 break
-    #             else:
-    #                 print("failure")
-    #                 break
-    #     except Exception as e:
-    #         print(e)
-    #         # break
-    #     break
-    # return
-
 
     iters = 1
     while iters < 10:
@@ -189,13 +141,6 @@ def pour(planner):
         iters += 1
 
     flag = True
-    # while initial_thetas['right_w2'] > -np.pi:
-    #     print(right_arm.joint_angles())
-    #     initial_thetas['right_w2'] -= .4#.4 *20/ (20 + iters)
-    #     right_arm.set_joint_positions(initial_thetas)
-    #     rospy.sleep(0.1)
-    #     iters += 1
-
 
 
 #Define the method which contains the node's main functionality
@@ -263,6 +208,7 @@ def executePositions(planner, positions, orientations, const=[]):
                 break
         print("done")
         return
+
 #assumes the cup is already gripped in a horizontal fashion, then pours to filling using a desired relative
 def moveAndPour(planner, fill_pos, const = []):
     orientation = getQuaternion(np.array([0,1,0]), np.pi / 2)
@@ -282,7 +228,6 @@ def moveAndPour(planner, fill_pos, const = []):
 
     # orien_const.weight = 1.0;
     executePositions(planner, [position], [o], [orien_const])
-    #pour(planner)
 
     orients = []
 
@@ -298,15 +243,12 @@ def moveAndPour(planner, fill_pos, const = []):
     executePositions(planner,[position for _ in range(0, 10)], orients)
 
 
-
-
-
-
 def getDefaultQuat():
     y_rot = getQuaternion(np.array([0,1,0]), np.pi * 3 / 4)
     z_rot = getQuaternion(np.array([0,0,1]), np.pi / 2)
     return quatMult(z_rot, y_rot)
-    #return y_rot
+
+
 def putCupObstacle(planner, position, name):
     cup_size = np.array([0.06,0.06, 0.12])
     cup_pose = PoseStamped()
@@ -315,8 +257,11 @@ def putCupObstacle(planner, position, name):
     cup_pose.pose.position.z = position[2] - 0.06
 
     planner.add_box_obstacle(cup_size, name , cup_pose)
+
+
 def removeCup(planner, name):
     planner.remove_obstacle("name")
+
 
 def main():
     global thetas
@@ -402,15 +347,6 @@ def printPosition():
 
         print(pos)
         ros.sleep(0.1)
-
-
-
-
-
-
-
-
-
 
 
 
