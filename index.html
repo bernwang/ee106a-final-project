@@ -32,7 +32,7 @@
     </div>     
   <br></br>
   <br></br>
-  <div class="overview-banner" style="margin-top: 0">
+  <div class="overview-banner-overview" style="margin-top: 0">
     <div class="banner-text">
       <h2 align="center">Overview</h2>
     </div>
@@ -51,11 +51,19 @@
     <h3 align="center">Real-World Applications</h3>
 
     <p>Our project can be applied to help people with difficulties in motor function like those with Parkinson’s. Having a robot at home who can pour liquids would improve the quality of life for many. Another application would be pouring dangerous substances, like chemicals, for commercial use. </p>
+
+    <div class="row one">
+      <div class="col-lg-12">
+        <img src="images/die_casting.jpg" style="max-width: 70%"/>
+        <p>The robot on the left is used to pour molten metal into a die cast. </p>
+      </div>
+    </div>
+
   </div>
 
 
-  <div class="overview-banner">
-    <div class="banner-text">
+  <div class="overview-banner-design">
+    <div class="banner-text-dark">
       <h2 align="center">Design</h2>
     </div>
   </div>
@@ -69,6 +77,13 @@
     <h3 align="center">Our Design</h3>
 
     <p>Our design was to first calibrate on the height plane of the cup lid using known positions by moving a gripper holding an object around, tracking the spatial position of the gripper and the pixel coordinate of the center of the object. We can obtain the spatial position by using tf and the pixel coordinate using an object detection algorithm that will be explained in the implementation section. Using the spatial-pixel pairs we would calculate a homography matrix to get corresponding pixel to spatial mappings for objects in the plane. Using the same object detection algorithm and our new homography matrix we would then get the position of our cup to pick up and pour into another one (procedure detailed in implementation section). </p>
+    <div class="row one">
+      <div class="col-lg-12">
+        <img src="images/system_diagram.png" style="max-width: 40%"/>
+        <p>System Diagram</p>
+      </div>
+    </div>
+    <br></br>
 
     <h3 align="center">Design Choices Made</h3>
 
@@ -85,8 +100,8 @@
   </div>
 
 
-  <div class="overview-banner">
-    <div class="banner-text">
+  <div class="overview-banner-implementation">
+    <div class="banner-text-dark">
       <h2 align="center">Implementation</h2>
     </div>
   </div>
@@ -110,6 +125,15 @@
 
     <h3 align="center">Software</h3>
     <h4 align="center">Image Detection Algorithm</h4>
+
+    <div class="row one">
+      <div class="col-lg-12">
+        <img src="images/masks.png" style="max-width: 80%"/>
+        <p>Masks found by Mask R-CNN (image taken from Baxter) </p>
+      </div>
+    </div>
+    <br></br>
+
     <p>We wrote a detection algorithm for cups using <a href="https://github.com/matterport/Mask_RCNN">Mask R-CNN</a> and Canny edge detector and is as follows: </p>
     <ol>
       <li>We first find the mask of the cup using a pre-trained model of Mask R-CNN.</li>
@@ -127,12 +151,33 @@
     </ol>
     <br></br>
 
+    <div class="row one">
+      <div class="col-lg-6">
+        <img src="images/cup_edges.png" />
+        <p>Cup with edges found from our edge detection algorithm </p>
+      </div>
+      <div class="col-lg-6">
+        <img src="images/cup_ellipse.png" />
+        <p>Cup with ellipse fitted using coordinates found from our algorithm</p>
+      </div>
+    </div>
+    <br></br>
+
+
     <h4 align="center">Making Baxter Pour</h4>
     <p>To make Baxter pour, we modified the path_planner.py from lab 7 to get Baxter to pour to in addition to plan for an end position and orientation, plan for joint angles. We did this so that when pouring, we could have Baxter only turn his wrist, because with end and orientation planning, sometimes small orientation changes to the end-effector, moving the whole arm could have Baxter make large sweeping motions. </p>
 
     
     <h3 align="center">The Complete System</h3>
     <h4 align="center">Calibration</h4>
+    <div class="row one">
+      <div class="col-lg-12">
+        <iframe src="https://www.youtube.com/embed/5zQnTiN0P_o" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <p> Demo of calibration (2x speedup) </p>
+      </div>
+    </div>
+    <br></br>
+
     <p>We first make Baxter hold a ball/cup for calibration and move it around in a 2D grid near the table height. We used tf_echo to record the spatial position of the gripper and then use our object detection algorithm to detect cup/ball. Since we are using the camera on Baxter’s left arm and is susceptible to distortion and overexposure, we calibrate the camera so produce adequate images. We then use the pixel-spatial coordinate mappings to compute a homography matrix, which we will use to map pixel coordinates to spatial coordinates. </p>
     <br></br>
 
@@ -143,6 +188,12 @@
     <h4 align="center">Pouring</h4>
     <p>The spatial coordinates of the centers of the cups from the vision phase are passed onto the pouring module, where we load the start position of our pouring action with the pouring cup and the goal position with the receiving cup. We then run our pouring action script, which will use moveit_commander to plan the path of picking up the pouring cup, moving it near the receiving cup into an orientation where it is possible to pour, pour the contents of the pouring cup into the receiving cup, and place then pouring cup back onto the table, all while holding the pouring cup in the vertical orientation so that it will not spill before getting to the pouring action. </p>
 
+    <div class="row one">
+      <div class="col-lg-12">
+        <img src="images/rviz.jpg" style="max-width: 60%"/>
+        <p>Rviz visualization (green table is set that way to avoid collisions with actual table)</p>
+      </div>
+    </div>
  </div>
 
 
@@ -162,24 +213,25 @@
     <h3 align="center">Video Demo</h3>
     <p> Here is a video demo of Baxter pouring: </p>
 
-    <div class="row one">
+    <div class="row one youtube">
       <div class="col-lg-12">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/Dxq5RUbs_b0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/Dxq5RUbs_b0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
+    <br></br>
 
     <p> On the screen is an image taken from Baxter's left arm with the lips of the cup found from our detection algorithm outlined. Here is a closer look at it: </p>
 
     <div class="row one">
       <div class="col-lg-12">
-        <img src="images/cups_with_edges.jpg"/>
+        <img src="images/cups_with_edges.jpg" style="max-width: 70%"/>
       </div>
     </div>
 
   </div>
 
-  <div class="overview-banner">
-    <div class="banner-text">
+  <div class="overview-banner-conclusion">
+    <div class="banner-text-dark">
       <h2 align="center">Conclusion</h2>
     </div>
   </div>
@@ -199,18 +251,22 @@
     </p>
   </div>
 
-  <div class="overview-banner">
-    <div class="banner-text">
+  <div class="overview-banner-team">
+    <div class="banner-text-dark">
       <h2 align="center">The Team</h2>
     </div>
   </div>
 
   <div class="content">
+    <p><b>Kevin</b> is 4th year EECS student from San Diego. He is responsible for implementing cup manipulation and the calibration procedure with Baxter, its arms, and its cameras. In his free time he likes to run and competes in marathons. </p>
+
+    <p><b>Bernie</b> is a 4th year EECS undergrad from San Diego. His current research involves LiDAR and autonomous driving. His interests are in the field of computer vision and machine learning. Bernie was responsible for the vision algorithms - object detection, computing pixel-to-spatial coordinates, edge detection - as well as part of the pouring path planning. </p>
+
 
   </div>
 
-  <div class="overview-banner">
-    <div class="banner-text">
+  <div class="overview-banner-additional-material">
+    <div class="banner-text-dark">
       <h2 align="center">Additional Materials</h2>
     </div>
   </div>
@@ -220,11 +276,16 @@
 
     <p>Youtube Videos</p>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/Dxq5RUbs_b0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  </div>
+    <br></br>
 
-  <div class="overview-banner-3">
-    <div class="banner-text-3">
-      <h2 align="center">That's All Folks!</h2>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/5zQnTiN0P_o" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+    <br></br>
+    <div class="row one">
+      <div class="col-lg-12">
+        <img src="images/rviz.jpg" style="max-width: 80%"/>
+        <p>Rviz visualization</p>
+      </div>
     </div>
   </div>
   </body>
